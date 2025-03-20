@@ -19,11 +19,15 @@ my_phone = os.getenv("MY_PHONE_NUMBER")
 client = Client(account_sid, auth_token)
 
 # Initialize our local Gemma model
-llm = Ollama(model="gemma")
+llm = Ollama(model="gemma3")
 
-# Load the article/blog post
-loader = WebBaseLoader("https://lilianweng.github.io/posts/2023-06-23-agent/")
-docs = loader.load()
+
+def load_text(url):
+    """Load the article/blog post"""
+    loader = WebBaseLoader(url)
+    loader.requests_kwargs = {'verify':False}
+    docs = loader.load()
+    return docs
 
 # Create a prompt template for summarization
 summary_template = """
@@ -47,8 +51,8 @@ summarize_chain = load_summarize_chain(llm=llm, prompt=prompt, chain_type="stuff
 
 def summarize_text(text):
     """Summarize the given text using our local LLM"""
-    summary = summarize_chain.run(text=)
-    return summary.strip()
+    summary = summarize_chain.invoke(text)
+    return summary
 
 def send_summary(summary, to_number):
     """Send the summary via Twilio SMS"""
